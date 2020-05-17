@@ -1,6 +1,7 @@
 import React, {useState, useRef, useEffect} from "react";
-import { View, Text, StyleSheet, Button, Alert} from "react-native";
-
+import { View, Text, StyleSheet, Button, Alert, Dimensions, FlatList} from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import BodyText from "../components/BodyText";
 import NumberContainer from "../components/NumberContainer";
 import Card from "../components/Card";
 import MainButton from "../components/MainButton";
@@ -17,14 +18,20 @@ const generateRandomBetween = (min, max, exclude) => {
     }
 };
 
+const renderListItem = (listLength, itemData) => (
+    <View style={styles.listItem}>
+        <BodyText>#{listLength - itemData.index}</BodyText>
+        <BodyText>{itemData.item}</BodyText>
+    </View>
+);
+
 
 const GameScreen = props => {
     const {userChoice, onGameOver} = props;
-    const [currentGuess, setCurrentGuess] = useState(
-        generateRandomBetween(1, 100, userChoice)
-    );
-    const [rounds, setRounds] = useState(0);
 
+    const initialGuess = generateRandomBetween(1, 100, userChoice);
+    const [currentGuess, setCurrentGuess] = useState(initialGuess);
+    const [pastGuesses, setPastGuesses] = useState([initialGuess.toString()]);
     const currentLow = useRef(1);
     const currentHigh = useRef(100);
 
@@ -32,9 +39,9 @@ const GameScreen = props => {
 
     useEffect(() => {
         if (currentGuess == userChoice) {
-            onGameOver(rounds);    
+            onGameOver(pastGuesses.length);    
         }
-    }, [currentGuess, rounds]);
+    }, [currentGuess, userChoice, onGameOver]);
 
     const nextGuessHandler = direction => {
         if (
@@ -51,11 +58,11 @@ const GameScreen = props => {
         if (direction === "lower") {
             currentHigh.current = currentGuess;
         } else {
-            currentLow.current = currentGuess;
+            currentLow.current = currentGuess + 1;
         }
         const nextNumber = generateRandomBetween(currentLow.current, currentHigh.current, currentGuess);
         setCurrentGuess(nextNumber);
-        setRounds(currRounds => currRounds + 1);
+        setPastGuesses(currPastGuesses => [nextNumber.toString(), ...currPastGuesses]);
     };
     
     return (
@@ -63,9 +70,20 @@ const GameScreen = props => {
             <Text>Opponent's Guess</Text>
             <NumberContainer>{currentGuess}</NumberContainer>
             <Card style={styles.buttonContainer}>
-                <MainButton onPress={() => nextGuessHandler('lower')}>LOWER</MainButton>
-                <MainButton onPress={() => nextGuessHandler('greater')}>GREATER</MainButton>
+                <MainButton onPress={() => nextGuessHandler('lower')}><Ionicons name="md-remove" size={24} color="white" /></MainButton>
+                <MainButton onPress={() => nextGuessHandler('greater')}><Ionicons name="md-add" size={24} color="white" /></MainButton>
             </Card>
+            <View style={styles.listContainer}>
+                {/*<ScrollView contentContainerStyle={styles.list}>
+                    {pastGuesses.map((pastGuess, index) => renderListItem(pastGuess, pastGuesses.length - index))}
+                </ScrollView>*/}
+                <FlatList 
+                    contentContainerStyle={styles.list}   
+                    data={pastGuesses}
+                    keyExtractor={item => item}
+                    renderItem={renderListItem.bind(this, pastGuesses.length)}
+                />
+            </View>
         </View>
     )
 };
@@ -80,9 +98,27 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: "row",
         justifyContent: "space-around",
-        marginTop: 20,
+        marginTop: Dimensions.get('window').height > 600 ? 20 : 5,
         width: 400,
         maxWidth: "90%"
+    },
+    listItem: {
+        borderColor: "#ccc",
+        borderWidth: 1,
+        padding: 15,
+        marginVertical: 10,
+        backgroundColor: "white",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: '100%'
+    },
+    list: {
+        flexGrow: 1,
+        justifyContent: "flex-end"
+    },
+    listContainer: {
+        flex: 1,
+        width: Dimensions.get('window').width > 350 ? '60%' : '80%'
     }
 });
 
