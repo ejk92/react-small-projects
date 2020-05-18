@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from "react";
-import { View, Text, StyleSheet, Button, Image, Dimensions} from "react-native";
+import { View, Text, StyleSheet, Button, Image, Dimensions, ScrollView} from "react-native";
 
 import BodyText from "../components/BodyText";
 import Colors from "../constants/color";
@@ -7,20 +7,22 @@ import MainButton from "../components/MainButton";
 
 const GameOverScreen = props => {
     return (
-        <View style={styles.screen}>
-            <BodyText>The Game is Over !</BodyText>
-            <View style={styles.imageContainer}>
-                <Image
-                    fadeDuration={300}
-                    source={require('../assets/success.png')}
-                    style={styles.image}
-                />
+        <ScrollView>
+            <View style={styles.screen}>
+                <BodyText>The Game is Over !</BodyText>
+                <View style={styles.imageContainer}>
+                    <Image
+                        fadeDuration={300}
+                        source={require('../assets/success.png')}
+                        style={styles.image}
+                    />
+                </View>
+                <BodyText style={styles.resultText}>
+                    Your phone needed <Text style={styles.highlight}>{props.roundsNumber}</Text> rounds to guess number <Text style={styles.highlight}>{props.userNumber}</Text>
+                </BodyText>
+                <MainButton onPress={props.onRestart}>NEW GAME</MainButton>
             </View>
-            <BodyText style={styles.resultText}>
-                Your phone needed <Text style={styles.highlight}>{props.roundsNumber}</Text> rounds to guess number <Text style={styles.highlight}>{props.userNumber}</Text>
-            </BodyText>
-            <MainButton onPress={props.onRestart}>NEW GAME</MainButton>
-        </View>
+        </ScrollView>
     )
 };
 
@@ -28,7 +30,8 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        paddingVertical: 10
     },
     imageContainer: {
         width: Dimensions.get('window').width * 0.7,
