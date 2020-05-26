@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { createStore, combineReducers } from "redux";
 import {Provider} from "react-redux";
 
-import { productsReducer } from "./store/reducers/products";
+import productsReducer from "./store/reducers/products";
 import ShopNavigator from "./navigation/ShopNavigator";
 
 const rootReducer = combineReducers({

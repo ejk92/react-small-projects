@@ -1,4 +1,4 @@
-import {PRODUCTS} from "../../data/dummy-data";
+import PRODUCTS from "../../data/dummy-data";
 
 const initialState = {
     availableProducts: PRODUCTS,
@@ -6,9 +6,6 @@ const initialState = {
 };
 
 
-const productsReducer = (state=initialState, action) => {
-    switch(action.type) {
-
-    }
+export default (state=initialState, action) => {
     return state
 }
