@@ -1,9 +1,10 @@
 import React from "react";
-import {useSelector} from "react-redux";
+import {useSelector, useDispatch} from "react-redux";
 import {View, Text, StyleSheet, Button, FlatList} from "react-native";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import CartItem from "../../components/shop/CartItem";
-
+import * as cartActions from "../../store/actions/cart";
+import * as orderActions from "../../store/actions/orders";
 
 const CartScreen = props => {
     const cartItems = useSelector(state => {
@@ -17,20 +18,23 @@ const CartScreen = props => {
                 sum: state.cart.items[key].sum
             });
         };
-        return transformedCartItems;
+        return transformedCartItems.sort((a, b) => a.productId > b.productId ? 1 : -1);
     });
 
-    const totalAmount = useSelector(state => state.cart.totalAmount);
+    const dispatch = useDispatch();
+
+    const cartTotalAmount = useSelector(state => state.cart.totalAmount);
     return (
         <View style={styles.screen}>
             <View style={styles.summary}>
                 <Text style={styles.summaryText}>
-                    Total: <Text style={styles.amount}>${totalAmount}</Text>
+                    Total: <Text style={styles.amount}>${cartTotalAmount}</Text>
                 </Text>
                 <Button 
                     color={Colors.accent} 
                     title="Order now" 
                     disabled={cartItems.length === 0}
+                    onPress={() => dispatch(orderActions.addOrder(cartItems, cartTotalAmount))}
                 />
             </View>
             <FlatList 
@@ -41,7 +45,7 @@ const CartScreen = props => {
                         quantity={itemData.item.quantity}
                         name={itemData.item.productName}
                         amount={itemData.item.sum}
-                        onRemove={() => {}}
+                        onRemove={() => dispatch(cartActions.removeFromCart(itemData.item.productId))}
                     />
                 }
             />
