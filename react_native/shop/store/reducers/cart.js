@@ -15,7 +15,7 @@ export default (state = initialState, action) => {
 
             let updatedOrNewCartItem;
 
-            if (items[addedProduct.id]) {
+            if (state.items[addedProduct.id]) {
                 updatedOrNewCartItem = new CartItem(
                     state.items[addedProduct.id].quantity + 1,
                     prodPrice,
@@ -23,7 +23,7 @@ export default (state = initialState, action) => {
                     state.items[addedProduct.id].sum + prodPrice
                 )
             } else {
-                updatedOrNewCart = new CartItem(1, prodPrice, prodName, prodPrice);
+                updatedOrNewCartItem = new CartItem(1, prodPrice, prodName, prodPrice);
             }
             return {
                 ...state,
