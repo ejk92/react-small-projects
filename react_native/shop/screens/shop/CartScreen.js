@@ -34,24 +34,33 @@ const CartScreen = props => {
                     color={Colors.accent} 
                     title="Order now" 
                     disabled={cartItems.length === 0}
-                    onPress={() => dispatch(orderActions.addOrder(cartItems, cartTotalAmount))}
+                    onPress={() => {
+                        dispatch(orderActions.addOrder(cartItems, cartTotalAmount))
+                    }}
                 />
             </View>
             <FlatList 
                 data={cartItems}
                 keyExtractor={item => item.productId}
-                renderItem={itemData => 
+                renderItem={itemData => (
                     <CartItem 
                         quantity={itemData.item.quantity}
                         name={itemData.item.productName}
                         amount={itemData.item.sum}
-                        onRemove={() => dispatch(cartActions.removeFromCart(itemData.item.productId))}
+                        deletable
+                        onRemove={() => {
+                            dispatch(cartActions.removeFromCart(itemData.item.productId));
+                        }}
                     />
-                }
+                )}
             />
         </View>
     )
 };
+
+CartScreen.navigationOptions = {
+    headerTitle: "Your cart"
+}
 
 const styles = StyleSheet.create({
     screen: {
