@@ -1,5 +1,5 @@
-import React from "react";
-import { FlatList, StyleSheet, Platform, Button, Alert } from "react-native";
+import React, {useState, useCallback} from "react";
+import { View, FlatList, StyleSheet, Platform, Button, Alert, ActivityIndicator } from "react-native";
 import {useSelector, useDispatch} from "react-redux";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
@@ -9,19 +9,33 @@ import  Colors  from "../../constants/Colors";
 import * as productsActions from "../../store/actions/products";
 
 const UserProductsScreen = props => {
+    const [isLoading, setIsLoading] = useState(false);
     const userProducts = useSelector(state => state.products.userProducts);
     const dispatch = useDispatch();
 
     const editProductHandler = id => props.navigation.navigate('editProduct', {productId: id});
+
+    const deleteProduct = useCallback(async (id) => {
+        setIsLoading(true);
+        await dispatch(productsActions.deleteProduct(id));
+        setIsLoading(false);
+    }, [dispatch, setIsLoading]);
 
     const deleteHandler = (id) => {
         Alert.alert(
             "Are you sure?", 
             "Do you really want to delete product", [
                 {text: "No", style: 'default'},
-                {text: "Yes", style: "desctructive", onPress: () => dispatch(productsActions.deleteProduct(id))}
+                {text: "Yes", style: "desctructive", 
+                onPress: () => deleteProduct(id)}
             ]
         )
+    }
+
+    if (isLoading) {
+        <View>
+            <ActivityIndicator size="large" />
+        </View>
     }
     
     return (

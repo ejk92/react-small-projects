@@ -1,11 +1,12 @@
-import React, {useEffect, useCallback, useReducer} from "react";
-import {View, Text, ScrollView, StyleSheet, TextInput, Platform, Alert} from "react-native";
+import React, {useState, useEffect, useCallback, useReducer} from "react";
+import {View, Text, ScrollView, StyleSheet, TextInput, Platform, Alert, ActivityIndicator} from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import {useSelector, useDispatch} from "react-redux";
 
 import CustomHeaderButton from "../../components/UI/HeaderButton";
 import * as productsActions from "../../store/actions/products";
 import Input from "../../components/UI/Input";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
 
@@ -35,6 +36,8 @@ const formReducer = (state, action) => {
 };
 
 const EditProductScreen = props => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(false);
     const productId = props.navigation.getParam("productId");
     const editedProduct = useSelector(state => 
         state.products.userProducts.find(product => product.id === productId)
@@ -58,29 +61,41 @@ const EditProductScreen = props => {
         formIsValid: editedProduct ? true: false
     });
 
+    useEffect(() => {
+        if (error) {
+            Alert.alert("An error occured", error, [{text: "OK"}])
+        }
+    }, [error]);
 
-    const submitHandler = useCallback(() => {
+    const submitHandler = useCallback(async () => {
         if (!formState.formIsValid) {
             Alert.alert("Wrong input", "Please check the errors in the form", [{text: "Okay"}]);
-            return;
+            //return;
         };
-
-        if (editedProduct) {
-            dispatch(productsActions.updateProduct(
-                productId, 
-                formState.inputValues.name, 
-                formState.inputValues.description, 
-                formState.inputValues.imageUrl
-            ));
-        } else {
-            dispatch(productsActions.createProduct(
-                formState.inputValues.name, 
-                formState.inputValues.description, 
-                formState.inputValues.imageUrl, 
-                +formState.inputValues.price
-            ));
+        setIsLoading(true);
+        setError(null);
+        try {
+            if (editedProduct) {
+                await dispatch(productsActions.updateProduct(
+                    productId, 
+                    formState.inputValues.name, 
+                    formState.inputValues.description, 
+                    formState.inputValues.imageUrl
+                ));
+            }   else {
+                await dispatch(productsActions.createProduct(
+                    formState.inputValues.name, 
+                    formState.inputValues.description, 
+                    formState.inputValues.imageUrl, 
+                    +formState.inputValues.price
+                ));
+            }
+            props.navigation.goBack();
+        } catch (err) {
+            setError(err.message);
         }
-        props.navigation.goBack();
+        setIsLoading(false);
+        
     }, [dispatch, formState]);
 
     useEffect(() => {
@@ -97,6 +112,13 @@ const EditProductScreen = props => {
         });
     }, [dispatchFormState]);
 
+    if (isLoading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+            </View>
+        )
+    }
     return (
         <ScrollView>
             <View style={styles.form}>
@@ -170,6 +192,11 @@ EditProductScreen.navigationOptions = navData => {
 const styles = StyleSheet.create({
     form: {
         margin: 20
+    },
+    centered: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center"
     }
 });
 
