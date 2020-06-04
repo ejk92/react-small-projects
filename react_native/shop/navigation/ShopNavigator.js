@@ -41,7 +41,8 @@ const ProductsNavigator = createStackNavigator({
                     color={drawerConfig.tintColor}
                 />
         },
-        defaultNavigationOptions: defaultNavigationOptions}
+        defaultNavigationOptions: defaultNavigationOptions
+    }
 )
 
 const OrdersNavigator = createStackNavigator({
@@ -88,9 +89,13 @@ const ShopNavigator = createDrawerNavigator({
     }
 });
 
-const AuthNavigator = createStackNavigator({
+const AuthNavigator = createStackNavigator(
+    {
     auth: AuthScreen
-});
+    }, {
+        defaultNavigationOptions: defaultNavigationOptions
+    }
+);
 
 const MainNavigator = createSwitchNavigator({
     auth: AuthNavigator,
