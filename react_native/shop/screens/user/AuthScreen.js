@@ -1,6 +1,6 @@
-import React, {useReducer, useCallback} from "react";
+import React, {useState, useEffect, useReducer, useCallback} from "react";
 import {useDispatch} from "react-redux";
-import {KeyboardAvoidingView, View, ScrollView, StyleSheet, Button} from "react-native";
+import {KeyboardAvoidingView, View, ScrollView, StyleSheet, Button, ActivityIndicator, Alert} from "react-native";
 import {LinearGradient} from "expo-linear-gradient";
 
 import Input from "../../components/UI/Input";
@@ -37,6 +37,9 @@ const formReducer = (state, action) => {
 
 
 const AuthScreen = props => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
+    const [isSignup, setIsSignup] = useState(false);
     const dispatch = useDispatch();
 
     const [formState, dispatchFormState] = useReducer(formReducer, {
@@ -51,8 +54,27 @@ const AuthScreen = props => {
         formIsValid: false
     });
 
-    const singupHandler = () => {
-        dispatch(authActions.singup(formState.inputValues.email, formState.inputValues.password))
+    useEffect(() => {
+        if (error) {
+            Alert.alert("an error occured", error, [{text: "OKEy"}])
+            setError();
+        }
+    }, [error]);
+
+    const authHandler = async () => {
+        let action;
+        if (isSignup) {
+            action = authActions.singup(formState.inputValues.email, formState.inputValues.password);
+        } else {
+            action = authActions.login(formState.inputValues.email, formState.inputValues.password);
+        }
+        setIsLoading(true);
+        try {
+            await dispatch(action);
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsLoading(false);
     }
 
     const inputChangeHandler = useCallback((inputIdentifier, inputValue, inputValidity) => {
@@ -91,8 +113,9 @@ const AuthScreen = props => {
                             onInputChange={inputChangeHandler}
                             initialValue=""
                         />
-                        <View style={styles.buttonContainer}><Button title="login" color={Colors.primary} onPress={singupHandler} /></View>
-                        <View style={styles.buttonContainer}><Button title="Switch to signup" color={Colors.accent} onPress={()=>{}} /></View>
+                        {isLoading ? <ActivityIndicator size="small" color={Colors.primary}/> : <View style={styles.buttonContainer}><Button title={isSignup ? "Sign up" : "Login"} color={Colors.primary} onPress={authHandler} /></View>}
+                        <View style={styles.buttonContainer}><Button title={`Switch to ${isSignup ? 'Login': 'Sign up'}`} color={Colors.accent} onPress={()=>
+                            {setIsSignup(prevState => !prevState)}} /></View>
                     </ScrollView>
                 </Card>
             </LinearGradient>

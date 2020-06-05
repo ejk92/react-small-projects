@@ -16,7 +16,13 @@ export const singup = (email, password) => {
         });
 
         if(!response.ok) {
-            throw new Error("Something went wrong!");
+            const errorResData = await response.json();
+            const errorId = errorResData.error.message;
+            let message = "Something went wrong";
+            if (errorId === 'EMAIL_NOT_FOUND') {
+                message = 'This email could not be found';
+            }
+            throw new Error(message);
         }
 
         const resData = await response.json();
@@ -41,7 +47,13 @@ export const login = (email, password) => {
         });
 
         if(!response.ok) {
-            throw new Error("Something went wrong!");
+            const errorResData = await response.json();
+            const errorId = errorResData.error.message;
+            let message = "Something went wrong";
+            if (errorId === 'EMAIL_NOT_FOUND') {
+                message = 'This email could not be found';
+            }
+            throw new Error(message);
         }
 
         const resData = await response.json();
