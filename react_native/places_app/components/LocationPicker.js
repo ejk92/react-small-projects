@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {View, Button, Text, ActivityIndicator, Alert, StyleSheet} from 'react-native';
 import * as Permissions from 'expo-permissions';
 import* as Location from 'expo-location';
@@ -18,6 +18,14 @@ const LocationPicker = props => {
         return true;
     
     };
+
+    const mapPickedLocation = props.navigation.getParam('pickedLocation');
+
+    useEffect(() => {
+        if (mapPickedLocation) {
+            setPickedLocation(mapPickedLocation);
+        }
+    }, [mapPickedLocation])
 
     const pickOnMapHandler = () => {
         props.navigation.navigate('Map');
