@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     itemData: {
         flexDirection: "row",
         alignItems: "center"
-    },
+    },  
     quantity: {
         fontFamily: "open-sans",
         color: "#888",

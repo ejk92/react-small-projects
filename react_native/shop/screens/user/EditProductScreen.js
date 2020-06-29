@@ -38,7 +38,7 @@ const formReducer = (state, action) => {
 const EditProductScreen = props => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(false);
-    const productId = props.navigation.getParam("productId");
+    const productId = props.route.params ? props.route.params.productId : null;
     const editedProduct = useSelector(state => 
         state.products.userProducts.find(product => product.id === productId)
     );
@@ -99,7 +99,19 @@ const EditProductScreen = props => {
     }, [dispatch, formState]);
 
     useEffect(() => {
-        props.navigation.setParams({submit: submitHandler})
+        props.navigation.setOptions({
+            headerRight: () => {
+                return (
+                    <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+                        <Item 
+                            title='Save' 
+                            iconName={Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'} 
+                            onPress={submitHandler}
+                        />
+                    </HeaderButtons>
+                )
+            }
+        })
     }, [submitHandler]);
 
 
@@ -171,21 +183,11 @@ const EditProductScreen = props => {
     )
 }
 
-EditProductScreen.navigationOptions = navData => {
-    const submitFn = navData.navigation.getParam("submit");
+export const screenOptions = navData => {
+
+    const routeParams = navData.route.params ? navData.route.params : null;
     return {
-        headerTitle: navData.navigation.getParam("productId") ? "Edit product" : "Add product",
-        headerRight: () => {
-            return (
-                <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-                    <Item 
-                        title='Save' 
-                        iconName={Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'} 
-                        onPress={submitFn}
-                    />
-                </HeaderButtons>
-            )
-        }
+        headerTitle: routeParams.productId ? "Edit product" : "Add product",
     }
 }
 
